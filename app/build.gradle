@@ -33,3 +33,22 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
 }
+
+// Setup GitHooks task
+task setupGitHooksTask(type: Exec) {
+    commandLine 'bash', './setupGitHooks.sh'
+}
+
+// Check condition to execute setup's script
+def props = new Properties()
+def localPropertiesFile = rootProject.file("local.properties")
+def setupGitHooks = false
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withInputStream { props.load(it) }
+    setupGitHooks = props.getProperty("setup.githooks") == "true"
+}
+
+if(!setupGitHooks) {
+    preBuild.dependsOn setupGitHooksTask
+    println "Setup GitHooks success"
+}
